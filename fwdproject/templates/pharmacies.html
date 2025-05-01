@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmacy Locator by Pincode</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        input {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .pharmacy {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Find Local Pharmacies</h1>
+    <form id="pincodeForm">
+        <label for="pincode">Enter your Pincode:</label>
+        <input type="text" id="pincode" name="pincode" placeholder="e.g., 515004" required>
+        <button type="submit">Search Pharmacies</button>
+    </form>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+    document.getElementById('pincodeForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const pincode = document.getElementById('pincode').value.trim();
+
+        // Validate Pincode (6-digit number)
+        if (!/^\d{6}$/.test(pincode)) {
+            alert("Please enter a valid 6-digit pincode.");
+            return;
+        }
+
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = "<p>Searching for pharmacies...</p>";
+
+        // Keywords to search for
+        const keywords = ["Apollo", "Medical Shop", "Medical Store", "Medi Plus","Pharmacies","Pharmacy"];
+        let allResults = [];
+
+        try {
+            for (const keyword of keywords) {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${keyword}+in+${pincode}&format=json&limit=5`);
+                const data = await response.json();
+                allResults = allResults.concat(data);
+            }
+
+            resultDiv.innerHTML = ""; // Clear previous results
+
+            if (allResults.length > 0) {
+                allResults.forEach(place => {
+                    const pharmacyDiv = document.createElement('div');
+                    pharmacyDiv.classList.add('pharmacy');
+                    pharmacyDiv.innerHTML = `
+                        <h3>${place.display_name.split(",")[0]}</h3>
+                        <p><strong>Address:</strong> ${place.display_name}</p>
+                    `;
+                    resultDiv.appendChild(pharmacyDiv);
+                });
+            } else {
+                resultDiv.innerHTML = `<p>No pharmacies found for pincode ${pincode}.</p>`;
+            }
+        } catch (error) {
+            console.error('Error fetching pharmacies:', error);
+            resultDiv.innerHTML = `<p>Error fetching pharmacies. Please try again later.</p>`;
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Medical Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <nav style="display: flex; justify-content: left; background-color: transparent !important; padding: 1px 0; margin-top: 0;">
+            {% if session.get('loggedin') %}
+                <a href="{{ url_for('dashboard') }}">Home</a>
+            {% else %}
+                <a href="{{ url_for('index') }}">Home</a>
+            {% endif %}
+            <a href="{{ url_for('prediction') }}">Predict</a>
+            {% if session.get('loggedin') %}
+                <a href="{{ url_for('tracker') }}">Tracker</a>
+                <a href="{{ url_for('profile') }}">Profile</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('register') }}">Register</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main>
+        <h1 style="text-align: center;">Medical Prediction</h1>
+
+        {% if not session.get('loggedin') %}
+            <p style="text-align: center; color: red; font-weight: bold;">
+                Please complete login first before making predictions.
+            </p>
+        {% else %}
+            <form method="post">
+                <input type="text" name="bp" placeholder="Enter BP (1 for normal, 0 for abnormal)" required>
+                <input type="text" name="sugar" placeholder="Enter Sugar Level (1 for normal, 0 for abnormal)" required>
+                <input type="text" name="temperature" placeholder="Enter Temperature (e.g., 98.6)" required>
+                <input type="text" name="age" placeholder="Enter Age" required>
+                <input type="text" name="usefulCount" placeholder="Enter Useful Count" required>
+                <button type="submit" class="btn">Predict</button>
+            </form>
+
+            {% if prediction_text %}
+                <h2>{{ prediction_text }}</h2>
+                <!-- Add "Find Pharmacies" button -->
+                <div style="text-align: center; margin-top: 20px;">
+                        <a href="{{ url_for('pharmacies') }}" class="btn btn-primary">Find Pharmacies</a>
+                </div>
+            {% endif %}
+        {% endif %}
+    </main>
+
+</body>
+</html>
